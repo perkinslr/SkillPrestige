@@ -28,7 +28,7 @@ namespace SkillPrestige
 
             var animalHouseBuildings = Game1.getFarm().buildings.Where(x => x.indoors != null && x.indoors.GetType() == typeof(AnimalHouse));
 
-            foreach (var produce in animalHouseBuildings.SelectMany(x => x.indoors.objects.Values).Where(x => x.isSpawnedObject && x.parentSheetIndex.ToString().IsOneOf(animalProduce)))
+            foreach (var produce in animalHouseBuildings.SelectMany(x => x.indoors.Value.objects.Values).Where(x => x.isSpawnedObject && x.parentSheetIndex.ToString().IsOneOf(animalProduce)))
             {
                 if (ShouldAnimalProductQuanityIncrease())
                 {

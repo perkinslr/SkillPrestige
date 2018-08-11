@@ -82,20 +82,21 @@ namespace SkillPrestige
             Logger.LogVerbose(
                 $"Adding {addedProficiency} temporary levels to {ToolTypeLookup.ToolTypes.Single(x => x.Key == CurrentTool).Value} skill.");
             StaminaBeforeToolUse = Game1.player.Stamina;
+            
             switch (CurrentTool)
             {
                 case ToolType.Hoe:
                 case ToolType.WateringCan:
-                    Game1.player.addedFarmingLevel += addedProficiency;
+                    Game1.player.addedFarmingLevel.Value += addedProficiency;
                     break;
                 case ToolType.FishingRod:
-                    Game1.player.addedFishingLevel += addedProficiency;
+                    Game1.player.addedFishingLevel.Value += addedProficiency;
                     break;
                 case ToolType.Axe:
-                    Game1.player.addedForagingLevel += addedProficiency;
+                    Game1.player.addedForagingLevel.Value += addedProficiency;
                     break;
                 case ToolType.Pickaxe:
-                    Game1.player.addedMiningLevel += addedProficiency;
+                    Game1.player.addedMiningLevel.Value += addedProficiency;
                     break;
                 case null:
                     Logger.LogVerbose("Tool is not recognized for profieciency.");
@@ -116,16 +117,16 @@ namespace SkillPrestige
             {
                 case ToolType.Hoe:
                 case ToolType.WateringCan:
-                    Game1.player.addedFarmingLevel -= addedProficiency;
+                    Game1.player.addedFarmingLevel.Value -= addedProficiency;
                     break;
                 case ToolType.FishingRod:
-                    Game1.player.addedFishingLevel -= addedProficiency;
+                    Game1.player.addedFishingLevel.Value -= addedProficiency;
                     break;
                 case ToolType.Axe:
-                    Game1.player.addedForagingLevel -= addedProficiency;
+                    Game1.player.addedForagingLevel.Value -= addedProficiency;
                     break;
                 case ToolType.Pickaxe:
-                    Game1.player.addedMiningLevel -= addedProficiency;
+                    Game1.player.addedMiningLevel.Value -= addedProficiency;
                     break;
                 case null:
                     Logger.LogVerbose("Tool is not recognized for profieciency.");

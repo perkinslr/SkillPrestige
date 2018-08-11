@@ -11,7 +11,7 @@ namespace SkillPrestige
     [Serializable]
     public class PrestigeSet
     {
-        public IEnumerable<Prestige> Prestiges { get; set; }
+        public List<Prestige> Prestiges { get; set; }
 
         /// <summary>
         /// the default prestige set that contains prestiges for each of the skills in the unmodded version Stardew Valley.

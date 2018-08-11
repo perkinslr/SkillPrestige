@@ -6,6 +6,8 @@ using JsonNet.PrivateSettersContractResolvers;
 using Newtonsoft.Json;
 using SkillPrestige.Logging;
 using StardewValley;
+using Newtonsoft.Json.Linq;
+using SkillPrestige.SkillTypes;
 
 namespace SkillPrestige
 {
@@ -16,9 +18,8 @@ namespace SkillPrestige
     public class PrestigeSaveData
     {
         private const string DataFileName = @"Data.json";
-        private static readonly string DataFilePath = Path.Combine(SkillPrestigeMod.ModPath, DataFileName);
-        public static PrestigeSet CurrentlyLoadedPrestigeSet => Instance.PrestigeSaveFiles[CurrentlyLoadedSaveFileUniqueId];
-        private static ulong CurrentlyLoadedSaveFileUniqueId { get; set; }
+        
+        public static PrestigeSet CurrentlyLoadedPrestigeSet;
 
         private static PrestigeSaveData _instance;
 
@@ -27,12 +28,10 @@ namespace SkillPrestige
         /// </summary>
         // ReSharper disable once MemberCanBePrivate.Global - no, it can't be made private or it won't be serialized.
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global - setter used by deserializer.
-        public IDictionary<ulong, PrestigeSet> PrestigeSaveFiles { get; set; }
-        
+       
         private PrestigeSaveData()
         {
-            PrestigeSaveFiles = new Dictionary<ulong, PrestigeSet>();
-            Logger.LogInformation("Created new prestige save data instance.");
+            CurrentlyLoadedPrestigeSet = PrestigeSet.CompleteEmptyPrestigeSet;
         }
 
         // ReSharper disable once MemberCanBePrivate.Global - used publically, resharper is wrong.
@@ -47,22 +46,49 @@ namespace SkillPrestige
         public void Save()
         {
             Logger.LogInformation("Writing prestige save data to disk...");
-            File.WriteAllLines(DataFilePath, new[] { JsonConvert.SerializeObject(Instance) });
+            SkillPrestigeMod.ModHelper.WriteJsonFile(SkillPrestigeMod.PerSaveDataPath, CurrentlyLoadedPrestigeSet);
             Logger.LogInformation("Prestige save data written to disk.");
         }
 
         public void Read()
         {
-            if (!File.Exists(DataFilePath)) SetupDataFile();
-            Logger.LogInformation("Deserializing prestige save data...");
-            var settings = new JsonSerializerSettings { ContractResolver = new PrivateSetterContractResolver()};
-            _instance = JsonConvert.DeserializeObject<PrestigeSaveData>(File.ReadAllText(DataFilePath), settings);
+            _instance = new PrestigeSaveData();
+            Logger.LogInformation("Deserializing prestige save data... "+SkillPrestigeMod.PerSaveDataPath);
+            
+            String abspath = Path.Combine(SkillPrestigeMod.ModHelper.DirectoryPath, SkillPrestigeMod.PerSaveDataPath);
+            if (File.Exists(abspath)) {
+                var json = File.ReadAllText(abspath);
+                CurrentlyLoadedPrestigeSet = PrestigeSet.CompleteEmptyPrestigeSet;
+                JObject parser = JObject.Parse(json);
+                List<Prestige> prestiges = new List<Prestige>();
+                foreach (JObject child in parser["Prestiges"].Children()) {
+                    Prestige prestige = new Prestige();
+                    prestige.PrestigePoints = child["PrestigePoints"].ToObject<int>();
+                    var st = child["SkillType"];
+                    prestige.SkillType = new SkillType(st["Name"].ToObject<String>(), st["Ordinal"].ToObject<int>());
+                    IList<int> professionSelected = prestige.PrestigeProfessionsSelected;
+                    foreach (var profession in child["PrestigeProfessionsSelected"]) {
+                        professionSelected.Add(profession.ToObject<int>());
+                    }
+                    if (child["Bonuses"].Type == JTokenType.Null) {
+                        prestige.Bonuses = null;
+                    }
+                    prestiges.Add(prestige);
+                }
+                CurrentlyLoadedPrestigeSet.Prestiges = prestiges;
+            }
+            
+            
+            
+            
+            
+            
             Logger.LogInformation("Prestige save data loaded.");
         }
 
         private void UpdatePrestigeSkillsForCurrentFile()
         {
-            Logger.LogVerbose("Checking for missing prestige data...");
+            Logger.LogInformation("Checking for missing prestige data...");
             var missingPrestiges = PrestigeSet.CompleteEmptyPrestigeSet.Prestiges.Where(x => !CurrentlyLoadedPrestigeSet.Prestiges.Select(y => y.SkillType).Contains(x.SkillType)).ToList();
             if (!missingPrestiges.Any()) return;
             Logger.LogInformation("Missing Prestige data found. Loading new prestige data...");
@@ -73,34 +99,8 @@ namespace SkillPrestige
             Logger.LogInformation("Missing Prestige data loaded.");
         }
 
-        private void SetupDataFile()
-        {
-            Logger.LogInformation("Creating new data file...");
-            try
-            {
-                Save();
-            }
-            catch (Exception exception)
-            {
-                Logger.LogCritical($"An error occured while attempting to create a data file. details: {Environment.NewLine} {exception}");
-                throw;
-            }
-            Logger.LogInformation("Successfully created new data file.");
-        }
-
-        public void UpdateCurrentSaveFileInformation()
-        {
-            if (CurrentlyLoadedSaveFileUniqueId == Game1.uniqueIDForThisGame) return;
-            Logger.LogInformation("Save file change detected.");
-            if (!Instance.PrestigeSaveFiles.ContainsKey(Game1.uniqueIDForThisGame))
-            {
-                Instance.PrestigeSaveFiles.Add(Game1.uniqueIDForThisGame, PrestigeSet.CompleteEmptyPrestigeSet);
-                Save();   
-                Logger.LogInformation($"Save file not found in list, adding save file to prestige data. Id = {Game1.uniqueIDForThisGame}");
-            }
-            CurrentlyLoadedSaveFileUniqueId = Game1.uniqueIDForThisGame;
-            UpdatePrestigeSkillsForCurrentFile();
-            Read();
+        public void UpdateCurrentSaveFileInformation() {
+            this.Read();
         }
 
     }

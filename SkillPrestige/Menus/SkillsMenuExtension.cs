@@ -99,10 +99,10 @@ namespace SkillPrestige.Menus
 
         private static void OpenPrestigeMenu(Skill skill)
         {
-            Logger.LogVerbose("Skills Menu - Setting up Prestige Menu...");
+            Logger.LogInformation("Skills Menu - Setting up Prestige Menu...");
             var menuWidth = Game1.tileSize * 18;
             var menuHeight = Game1.tileSize * 10;
-
+            
             var menuXCenter = (menuWidth + IClickableMenu.borderWidth * 2) / 2;
             var menuYCenter = (menuHeight + IClickableMenu.borderWidth * 2) / 2;
             var viewport = Game1.graphics.GraphicsDevice.Viewport;
@@ -110,10 +110,9 @@ namespace SkillPrestige.Menus
             var screenYCenter = (int)(viewport.Height * (1.0 / Game1.options.zoomLevel)) / 2;
             var bounds = new Rectangle(screenXCenter - menuXCenter, screenYCenter - menuYCenter, menuWidth + IClickableMenu.borderWidth*2, menuHeight + IClickableMenu.borderWidth*2);
             Game1.playSound("bigSelect");
-            Logger.LogVerbose("Getting currently loaded prestige data...");
-            var prestige = PrestigeSaveData.CurrentlyLoadedPrestigeSet.Prestiges.Single(x => x.SkillType == skill.Type);
+            var prestige = PrestigeSaveData.CurrentlyLoadedPrestigeSet.Prestiges.Single(x => x.SkillType.Ordinal == skill.Type.Ordinal);
             Game1.activeClickableMenu = new PrestigeMenu(bounds, skill, prestige);
-            Logger.LogVerbose("Skills Menu - Loaded Prestige Menu.");
+            Logger.LogInformation("Skills Menu - Loaded Prestige Menu.");
         }
     }
 }

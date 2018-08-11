@@ -30,7 +30,8 @@ namespace SkillPrestige
 
         public static string CurrentSaveOptionsPath { get; private set; }
 
-        public static string PerSaveOptionsDirectory { get; private set; }
+        public static string PerSaveOptionsPath => Path.Combine("data", $"{Constants.SaveFolderName}.cfg.json");
+        public static string PerSaveDataPath => Path.Combine("data", $"{Constants.SaveFolderName}.data.json");
 
         public static Texture2D PrestigeIconTexture { get; private set; }
 
@@ -40,7 +41,7 @@ namespace SkillPrestige
 
         private static bool SaveIsLoaded { get; set; }
 
-        private IModHelper ModHelper { get; set; }
+        public static IModHelper ModHelper { get; set; }
 
         private static bool _isFirstUpdate = true;
 
@@ -52,8 +53,7 @@ namespace SkillPrestige
             LogMonitor = Monitor;
             ModPath = helper.DirectoryPath;
             ModRegistry = helper.ModRegistry;
-            PerSaveOptionsDirectory = Path.Combine(ModPath, "psconfigs/");
-            OptionsPath = Path.Combine(ModPath, "config.json");
+            OptionsPath = Path.Combine("config.json");
             Logger.LogInformation("Detected game entry.");
             PrestigeSaveData.Instance.Read();
             
@@ -73,7 +73,7 @@ namespace SkillPrestige
         {
             Logger.LogInformation("Registering game events...");
             ControlEvents.MouseChanged += MouseChanged;
-            LocationEvents.CurrentLocationChanged += LocationChanged;
+            PlayerEvents.Warped += LocationChanged;
             GraphicsEvents.OnPostRenderGuiEvent += PostRenderGuiEvent;
             GameEvents.UpdateTick += GameUpdate;
             GameEvents.HalfSecondTick += HalfSecondTick;
@@ -82,6 +82,7 @@ namespace SkillPrestige
             Logger.LogInformation("Game events registered.");
             SaveEvents.AfterLoad += SaveFileLoaded;
             SaveEvents.AfterReturnToTitle += ReturnToTitle;
+            SaveEvents.BeforeSave += SaveEvents_BeforeSave;
         }
 
         private static void MouseChanged(object sender, EventArgsMouseStateChanged args)
@@ -92,8 +93,8 @@ namespace SkillPrestige
         private static void LocationChanged(object sender, EventArgs args)
         {
             Logger.LogVerbose("Location change detected.");
-            CurrentSaveOptionsPath = Path.Combine(ModPath, "psconfigs/", $@"{Game1.player.name.RemoveNonAlphanumerics()}_{Game1.uniqueIDForThisGame}.json");
-            PrestigeSaveData.Instance.UpdateCurrentSaveFileInformation();
+            //CurrentSaveOptionsPath = Path.Combine(ModPath, "psconfigs/", $@"{Game1.player.name.Value.RemoveNonAlphanumerics()}_{Game1.uniqueIDForThisGame}.json");
+            //PrestigeSaveData.Instance.UpdateCurrentSaveFileInformation();
             PerSaveOptions.Instance.Check();
             Profession.AddMissingProfessions();
         }
@@ -150,7 +151,7 @@ namespace SkillPrestige
                 RegisterCommands();
                 _isFirstUpdate = false;
             }
-            CheckForGameSave();
+            
             CheckForLevelUpMenu();
         }
 
@@ -171,11 +172,7 @@ namespace SkillPrestige
         {
             if (SaveIsLoaded) ExperienceHandler.UpdateExperience();
         }
-
-        private static void CheckForGameSave()
-        {
-            if (!Game1.newDay || Game1.fadeToBlackAlpha <= 0.95f) return;
-            Logger.LogInformation("New game day detected.");
+        private void SaveEvents_BeforeSave(object sender, EventArgs e) {
             PrestigeSaveData.Instance.Save();
         }
 
