@@ -19,7 +19,7 @@ namespace SkillPrestige
 
         public bool UseExperienceMultiplier { get; set; }
 
-        public decimal ExperienceMultiplier { get; private set; }
+        public decimal ExperienceMultiplier { get; set; }
 
         public int CostOfTierOnePrestige { get; set; }
 
@@ -63,7 +63,7 @@ namespace SkillPrestige
             try
             {
                 Instance.ResetRecipesOnPrestige =  true;
-                Instance.UseExperienceMultiplier =  false;
+                Instance.UseExperienceMultiplier =  true;
                 Instance.ExperienceMultiplier =  0.1m;
                 Instance.CostOfTierOnePrestige =  1;
                 Instance.CostOfTierTwoPrestige =  2;

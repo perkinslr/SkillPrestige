@@ -65,7 +65,6 @@ namespace SkillPrestige
             }
             LoadSprites();
             RegisterGameEvents();
-            //ReplaceStardewValleyCode();
             Logger.LogDisplay($"{ModManifest.Name} version {ModManifest.Version} by {ModManifest.Author} Initialized.");
         }
 
@@ -76,9 +75,7 @@ namespace SkillPrestige
             PlayerEvents.Warped += LocationChanged;
             GraphicsEvents.OnPostRenderGuiEvent += PostRenderGuiEvent;
             GameEvents.UpdateTick += GameUpdate;
-            GameEvents.HalfSecondTick += HalfSecondTick;
             GameEvents.OneSecondTick += OneSecondTick;
-            TimeEvents.AfterDayStarted += AfterDayStarted;
             Logger.LogInformation("Game events registered.");
             SaveEvents.AfterLoad += SaveFileLoaded;
             SaveEvents.AfterReturnToTitle += ReturnToTitle;
@@ -97,12 +94,6 @@ namespace SkillPrestige
             //PrestigeSaveData.Instance.UpdateCurrentSaveFileInformation();
             PerSaveOptions.Instance.Check();
             Profession.AddMissingProfessions();
-        }
-
-        private static void AfterDayStarted(object sender, EventArgs args)
-        {
-            Logger.LogVerbose("New Day Started");
-            AnimalProduceHandler.HandleSpawnedAnimalProductQuantityIncrease();
         }
 
         private static void SaveFileLoaded(object sender, EventArgs args)
@@ -162,12 +153,6 @@ namespace SkillPrestige
             UpdateExperience();
         }
 
-        private static void HalfSecondTick(object sender, EventArgs args)
-        {
-            //from what I can tell of the original game code, tools cannot be used quicker than 600ms, so a half second tick is the largest tick that will always catch that the tool was used.
-            ToolProficiencyHandler.HandleToolProficiency();
-        }
-
         private static void UpdateExperience()
         {
             if (SaveIsLoaded) ExperienceHandler.UpdateExperience();
@@ -202,14 +187,6 @@ namespace SkillPrestige
             Logger.LogInformation("Registering commands...");
             SkillPrestigeCommand.RegisterCommands(ModHelper.ConsoleCommands, false);
             Logger.LogInformation("Commands registered.");
-        }
-
-        private static void ReplaceStardewValleyCode()
-        {
-            Logger.LogInformation("Hijacking Methods...");
-            Logger.LogInformation("Hijacking Crop Harvest method...");
-            typeof(Crop).ReplaceMethod("harvest", typeof(CropReplacement), "HarvestReplacement");
-            Logger.LogInformation("Crop Harvest method hijacked!");
         }
     }
 }

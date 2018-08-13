@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SkillPrestige.Bonuses;
 using SkillPrestige.Menus;
 using SkillPrestige.Mods;
 using SkillPrestige.Professions;
@@ -87,11 +86,6 @@ namespace SkillPrestige
         public LevelUpManager LevelUpManager { get; set; }
 
         /// <summary>
-        /// The types of bonuses available with this skill.
-        /// </summary>
-        public IEnumerable<BonusType> AvailableBonusTypes { get; set; }
-
-        /// <summary>
         /// The default skills available in the unmodded game.
         /// </summary>
         public static IEnumerable<Skill> DefaultSkills => new List<Skill>
@@ -104,7 +98,7 @@ namespace SkillPrestige
                 Professions = Profession.FarmingProfessions,
                 SetSkillLevel = x => Game1.player.farmingLevel.Value = x,
                 GetSkillLevel = () => Game1.player.farmingLevel.Value,
-                AvailableBonusTypes = BonusType.FarmingBonusTypes
+                /*AvailableBonusTypes = BonusType.FarmingBonusTypes*/
             },
             new Skill
             {

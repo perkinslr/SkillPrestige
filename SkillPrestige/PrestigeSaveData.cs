@@ -70,9 +70,6 @@ namespace SkillPrestige
                     foreach (var profession in child["PrestigeProfessionsSelected"]) {
                         professionSelected.Add(profession.ToObject<int>());
                     }
-                    if (child["Bonuses"].Type == JTokenType.Null) {
-                        prestige.Bonuses = null;
-                    }
                     prestiges.Add(prestige);
                 }
                 CurrentlyLoadedPrestigeSet.Prestiges = prestiges;
