@@ -9,8 +9,6 @@ namespace SkillPrestige
     /// </summary>
     public static class PlayerManager
     {
-        private static int _originalMaxHealth = 100;
-
         public static void CorrectStats(Skill skillThatIsReset)
         {
             if (skillThatIsReset.Type != SkillType.Combat)
@@ -19,8 +17,8 @@ namespace SkillPrestige
             }
             else
             {
-                Logger.LogVerbose($"Player Manager- Combat reset. Resetting max health to {_originalMaxHealth}.");
-                Game1.player.maxHealth = _originalMaxHealth;
+                Logger.LogVerbose($"Player Manager- Combat reset. Deducting MaxHP Level Bonus.");
+                Game1.player.maxHealth -= 40;   
             }
             
         }
