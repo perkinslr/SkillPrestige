@@ -65,7 +65,7 @@ namespace SkillPrestige
             }
             LoadSprites();
             RegisterGameEvents();
-            Logger.LogDisplay($"{ModManifest.Name} version {ModManifest.Version} by {ModManifest.Author} Initialized.");
+//            Logger.LogDisplay($"{ModManifest.Name} version {ModManifest.Version} by {ModManifest.Author} Initialized.");
         }
 
         private void RegisterGameEvents()
